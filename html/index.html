@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>DPシーケンシャル抽出確率計算</title>
+    <!-- PyScript のスタイルシートとスクリプト -->
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      label, button, input {
+        font-size: 1.1em;
+      }
+      #output p {
+        background: #f0f0f0;
+        padding: 0.5em;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DPシーケンシャル抽出確率計算</h1>
+    <p>
+      以下の入力欄で「選択数 (num_select)」を指定し、「計算実行」ボタンを押すと、<br>
+      DP により各組み合わせの確率を計算し、以下の各条件の確率が表示されます。
+    </p>
+    <ul>
+      <li>「Flower」を含む組み合わせの確率</li>
+      <li>「Flower」を含まないが「Radiant」を含む組み合わせの確率</li>
+      <li>「Flower」「Radiant」のいずれも含まないが「Shiny」を含む組み合わせの確率</li>
+    </ul>
+    
+    <div>
+      <label for="num_select">選択数 (num_select):</label>
+      <input type="number" id="num_select" value="5" min="1" max="21">
+      <button id="run-btn">計算実行</button>
+    </div>
+    
+    <div id="output"></div>
+    
+    <!-- Pythonコードは外部ファイル (script.py) から読み込みます -->
+    <py-script src="script.py"></py-script>
+  </body>
+</html>
