@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ノード選択可能確率計算機</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js Zoom Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+  <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-3xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">ノード選択可能確率計算機</h1>
+    
+    <!-- 計算モード選択 -->
+    <div class="mb-4">
+      <label for="calc_mode" class="block mb-2">計算モード:</label>
+      <select id="calc_mode" class="w-full px-3 py-2 text-black rounded-lg">
+        <option value="all" selected>全ノード計算</option>
+        <option value="individual">個別計算</option>
+      </select>
+    </div>
+    
+    <!-- ノード選択（個別計算の場合のみ表示） -->
+    <div id="node-level-container" class="mb-4" style="display: none;">
+      <label for="node_level" class="block mb-2">ノード選択:</label>
+      <select id="node_level" class="w-full px-3 py-2 text-black rounded-lg">
+        <option value="node1">1次ノード</option>
+        <option value="node2">2次ノード</option>
+        <option value="node3">3次ノード</option>
+      </select>
+    </div>
+    
+    <!-- 選択数 -->
+    <div class="mb-4">
+      <label for="num_select" class="block mb-2">選択数 (num_select):</label>
+      <input type="number" id="num_select" value="5" class="w-full px-3 py-2 text-black rounded-lg">
+    </div>
+    
+    <!-- キーストーン数 -->
+    <div class="mb-4">
+      <label for="keystone_count" class="block mb-2">キーストーン数:</label>
+      <input type="number" id="keystone_count" value="1" min="1" class="w-full px-3 py-2 text-black rounded-lg">
+    </div>
+    
+    <!-- キャラクター選択 -->
+    <div id="character-container" class="mb-4">
+      <label for="character_select" class="block mb-2">キャラクター選択:</label>
+      <select id="character_select" class="w-full px-3 py-2 text-black rounded-lg">
+        <!-- キャラクター名（例として一部、実際は全リスト） -->
+        <option value="アイリ">アイリ</option>
+        <option value="アイリ (バンド)">アイリ (バンド)</option>
+        <option value="アカネ">アカネ</option>
+        <option value="アカネ (バニー)">アカネ (バニー)</option>
+        <option value="アカリ">アカリ</option>
+        <option value="アカリ (正月)">アカリ (正月)</option>
+        <option value="アコ">アコ</option>
+        <option value="アコ (ドレス)">アコ (ドレス)</option>
+        <option value="アズサ">アズサ</option>
+        <option value="アズサ (水着)">アズサ (水着)</option>
+        <option value="アスナ">アスナ</option>
+        <option value="アスナ (バニー)">アスナ (バニー)</option>
+        <option value="アスナ (制服)">アスナ (制服)</option>
+        <option value="アツコ">アツコ</option>
+        <option value="アツコ (水着)">アツコ (水着)</option>
+        <option value="アヤネ">アヤネ</option>
+        <option value="アヤネ (水着)">アヤネ (水着)</option>
+        <option value="アリス">アリス</option>
+        <option value="アリス (メイド)">アリス (メイド)</option>
+        <option value="アル">アル</option>
+        <option value="アル (ドレス)">アル (ドレス)</option>
+        <option value="アル (正月)">アル (正月)</option>
+        <option value="イオリ">イオリ</option>
+        <option value="イオリ (水着)">イオリ (水着)</option>
+        <option value="イズナ">イズナ</option>
+        <option value="イズナ (水着)">イズナ (水着)</option>
+        <option value="イズミ">イズミ</option>
+        <option value="イズミ (水着)">イズミ (水着)</option>
+        <option value="イチカ">イチカ</option>
+        <option value="イブキ">イブキ</option>
+        <option value="イロハ">イロハ</option>
+        <option value="ウイ">ウイ</option>
+        <option value="ウイ (水着)">ウイ (水着)</option>
+        <option value="ウタハ">ウタハ</option>
+        <option value="ウタハ (応援団)">ウタハ (応援団)</option>
+        <option value="ウミカ">ウミカ</option>
+        <option value="エイミ">エイミ</option>
+        <option value="エイミ (水着)">エイミ (水着)</option>
+        <option value="カエデ">カエデ</option>
+        <option value="カズサ">カズサ</option>
+        <option value="カズサ (バンド)">カズサ (バンド)</option>
+        <option value="カスミ">カスミ</option>
+        <option value="カホ">カホ</option>
+        <option value="カヨコ">カヨコ</option>
+        <option value="カヨコ (ドレス)">カヨコ (ドレス)</option>
+        <option value="カヨコ (正月)">カヨコ (正月)</option>
+        <option value="カリン">カリン</option>
+        <option value="カリン (バニー)">カリン (バニー)</option>
+        <option value="カリン (制服)">カリン (制服)</option>
+        <option value="カンナ">カンナ</option>
+        <option value="カンナ (水着)">カンナ (水着)</option>
+        <option value="キキョウ">キキョウ</option>
+        <option value="キサキ">キサキ</option>
+        <option value="キララ">キララ</option>
+        <option value="キリノ">キリノ</option>
+        <option value="キリノ (水着)">キリノ (水着)</option>
+        <option value="ココナ">ココナ</option>
+        <option value="コタマ">コタマ</option>
+        <option value="コタマ (キャンプ)">コタマ (キャンプ)</option>
+        <option value="コトリ">コトリ</option>
+        <option value="コトリ (応援団)">コトリ (応援団)</option>
+        <option value="コハル">コハル</option>
+        <option value="コハル (水着)">コハル (水着)</option>
+        <option value="コユキ">コユキ</option>
+        <option value="サオリ">サオリ</option>
+        <option value="サオリ (水着)">サオリ (水着)</option>
+        <option value="サキ">サキ</option>
+        <option value="サキ (水着)">サキ (水着)</option>
+        <option value="サクラコ">サクラコ</option>
+        <option value="サクラコ (アイドル)">サクラコ (アイドル)</option>
+        <option value="サツキ">サツキ</option>
+        <option value="サヤ">サヤ</option>
+        <option value="サヤ (私服)">サヤ (私服)</option>
+        <option value="シグレ">シグレ</option>
+        <option value="シグレ (温泉)">シグレ (温泉)</option>
+        <option value="シズコ">シズコ</option>
+        <option value="シズコ (水着)">シズコ (水着)</option>
+        <option value="シミコ">シミコ</option>
+        <option value="ジュリ">ジュリ</option>
+        <option value="シュン">シュン</option>
+        <option value="シュン (幼女)">シュン (幼女)</option>
+        <option value="ジュンコ">ジュンコ</option>
+        <option value="ジュンコ (正月)">ジュンコ (正月)</option>
+        <option value="シロコ">シロコ</option>
+        <option value="シロコ (ライディング)">シロコ (ライディング)</option>
+        <option value="シロコ (水着)">シロコ (水着)</option>
+        <option value="シロコ＊テラー">シロコ＊テラー</option>
+        <option value="スズミ">スズミ</option>
+        <option value="スミレ">スミレ</option>
+        <option value="セイア">セイア</option>
+        <option value="セナ">セナ</option>
+        <option value="セリカ">セリカ</option>
+        <option value="セリカ (水着)">セリカ (水着)</option>
+        <option value="セリカ (正月)">セリカ (正月)</option>
+        <option value="セリナ">セリナ</option>
+        <option value="セリナ (クリスマス)">セリナ (クリスマス)</option>
+        <option value="チアキ">チアキ</option>
+        <option value="チェリノ">チェリノ</option>
+        <option value="チェリノ (温泉)">チェリノ (温泉)</option>
+        <option value="チセ">チセ</option>
+        <option value="チセ (水着)">チセ (水着)</option>
+        <option value="チナツ">チナツ</option>
+        <option value="チナツ (温泉)">チナツ (温泉)</option>
+        <option value="チヒロ">チヒロ</option>
+        <option value="ツクヨ">ツクヨ</option>
+        <option value="ツバキ">ツバキ</option>
+        <option value="ツバキ (ガイド)">ツバキ (ガイド)</option>
+        <option value="ツルギ">ツルギ</option>
+        <option value="ツルギ (水着)">ツルギ (水着)</option>
+        <option value="トキ">トキ</option>
+        <option value="トキ (バニー)">トキ (バニー)</option>
+        <option value="トモエ">トモエ</option>
+        <option value="トモエ (チーパオ)">トモエ (チーパオ)</option>
+        <option value="ナギサ">ナギサ</option>
+        <option value="ナツ">ナツ</option>
+        <option value="ネル">ネル</option>
+        <option value="ネル (バニー)">ネル (バニー)</option>
+        <option value="ネル (制服)">ネル (制服)</option>
+        <option value="ノア">ノア</option>
+        <option value="ノア (パジャマ)">ノア (パジャマ)</option>
+        <option value="ノドカ">ノドカ</option>
+        <option value="ノドカ (温泉)">ノドカ (温泉)</option>
+        <option value="ノノミ">ノノミ</option>
+        <option value="ノノミ (水着)">ノノミ (水着)</option>
+        <option value="ハスミ">ハスミ</option>
+        <option value="ハスミ (体操服)">ハスミ (体操服)</option>
+        <option value="ハナエ">ハナエ</option>
+        <option value="ハナエ (クリスマス)">ハナエ (クリスマス)</option>
+        <option value="ハナコ">ハナコ</option>
+        <option value="ハナコ (水着)">ハナコ (水着)</option>
+        <option value="ハルカ">ハルカ</option>
+        <option value="ハルカ (正月)">ハルカ (正月)</option>
+        <option value="ハルナ">ハルナ</option>
+        <option value="ハルナ (正月)">ハルナ (正月)</option>
+        <option value="ハルナ (体操服)">ハルナ (体操服)</option>
+        <option value="ハレ">ハレ</option>
+        <option value="ハレ (キャンプ)">ハレ (キャンプ)</option>
+        <option value="ヒナ">ヒナ</option>
+        <option value="ヒナ (ドレス)">ヒナ (ドレス)</option>
+        <option value="ヒナ (水着)">ヒナ (水着)</option>
+        <option value="ヒナタ">ヒナタ</option>
+        <option value="ヒナタ (水着)">ヒナタ (水着)</option>
+        <option value="ヒビキ">ヒビキ</option>
+        <option value="ヒビキ (応援団)">ヒビキ (応援団)</option>
+        <option value="ヒフミ">ヒフミ</option>
+        <option value="ヒフミ (水着)">ヒフミ (水着)</option>
+        <option value="ヒマリ">ヒマリ</option>
+        <option value="ヒヨリ">ヒヨリ</option>
+        <option value="ヒヨリ (水着)">ヒヨリ (水着)</option>
+        <option value="フィーナ">フィーナ</option>
+        <option value="フウカ">フウカ</option>
+        <option value="フウカ (正月)">フウカ (正月)</option>
+        <option value="フブキ">フブキ</option>
+        <option value="フブキ (水着)">フブキ (水着)</option>
+        <option value="ホシノ">ホシノ</option>
+        <option value="ホシノ (水着)">ホシノ (水着)</option>
+        <option value="ホシノ (臨戦)">ホシノ (臨戦)</option>
+        <option value="マキ">マキ</option>
+        <option value="マコト">マコト</option>
+        <option value="マシロ">マシロ</option>
+        <option value="マシロ (水着)">マシロ (水着)</option>
+        <option value="マリー">マリー</option>
+        <option value="マリー (アイドル)">マリー (アイドル)</option>
+        <option value="マリー (体操服)">マリー (体操服)</option>
+        <option value="マリナ">マリナ</option>
+        <option value="マリナ (チーパオ)">マリナ (チーパオ)</option>
+        <option value="ミカ">ミカ</option>
+        <option value="ミサキ">ミサキ</option>
+        <option value="ミチル">ミチル</option>
+        <option value="ミドリ">ミドリ</option>
+        <option value="ミドリ (メイド)">ミドリ (メイド)</option>
+        <option value="ミナ">ミナ</option>
+        <option value="ミネ">ミネ</option>
+        <option value="ミネ (アイドル)">ミネ (アイドル)</option>
+        <option value="ミノリ">ミノリ</option>
+        <option value="ミモリ">ミモリ</option>
+        <option value="ミモリ (水着)">ミモリ (水着)</option>
+        <option value="ミヤコ">ミヤコ</option>
+        <option value="ミヤコ (水着)">ミヤコ (水着)</option>
+        <option value="ミユ">ミユ</option>
+        <option value="ミユ (水着)">ミユ (水着)</option>
+        <option value="ムツキ">ムツキ</option>
+        <option value="ムツキ (正月)">ムツキ (正月)</option>
+        <option value="メグ">メグ</option>
+        <option value="メル">メル</option>
+        <option value="モエ">モエ</option>
+        <option value="モエ (水着)">モエ (水着)</option>
+        <option value="モミジ">モミジ</option>
+        <option value="モモイ">モモイ</option>
+        <option value="モモイ (メイド)">モモイ (メイド)</option>
+        <option value="ユウカ">ユウカ</option>
+        <option value="ユウカ (パジャマ)">ユウカ (パジャマ)</option>
+        <option value="ユウカ (体操服)">ユウカ (体操服)</option>
+        <option value="ユカリ">ユカリ</option>
+        <option value="ユズ">ユズ</option>
+        <option value="ユズ (メイド)">ユズ (メイド)</option>
+        <option value="ヨシミ">ヨシミ</option>
+        <option value="ヨシミ (バンド)">ヨシミ (バンド)</option>
+        <option value="リオ">リオ</option>
+        <option value="ルミ">ルミ</option>
+        <option value="レイサ">レイサ</option>
+        <option value="レイジョ">レイジョ</option>
+        <option value="レンゲ">レンゲ</option>
+        <option value="ワカモ">ワカモ</option>
+        <option value="ワカモ水着">ワカモ水着</option>
+        <option value="御坂美琴">御坂美琴</option>
+        <option value="佐天涙子">佐天涙子</option>
+        <option value="初音ミク">初音ミク</option>
+        <option value="食蜂操祈">食蜂操祈</option>
+      </select>
+    </div>
+    
+    <button id="run-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition">
+      計算実行
+    </button>
+    
+    <!-- ズームリセットボタン -->
+    <div class="mt-4 text-center">
+      <button id="resetZoomBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">ズームリセット</button>
+    </div>
+    
+    <!-- 結果表示エリア -->
+    <div id="output" class="mt-6"></div>
+  </div>
+  
+  <script>
+    "use strict";
+    // 定数定義
+    const SHINY_RATE_NODE1 = 150 / 241;
+    const SHINY_RATE_NODE2 = 4000 / 9169;
+    const SHINY_RATE_NODE3 = 5 / 26;
+    const RADIANT_RATE_NODE3 = 10 / 43;
+    const SINGLE_COUNT = 1;
+    const LOW_TIER_COUNT_NODE3 = 2.5;
+    const HIGH_TIER_COUNT_NODE3 = 1.5;
+    
+    // DPキャッシュ
+    const dpCache = {};
+    
+    // --- powerDist: 分布の n 乗 ---
+    function powerDist(dist, n) {
+      if (n <= 0) return {0: 1};
+      let result = { ...dist };
+      for (let i = 1; i < n; i++) {
+        result = convolveDist(result, dist);
+      }
+      return result;
+    }
+    
+    // --- CSVパーサー ---
+    function parseCSV(text) {
+      const rows = [];
+      const lines = text.split(/\r?\n/);
+      for (let line of lines) {
+        let row = [];
+        let current = "";
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          let c = line[i];
+          if (c === '"') {
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (c === ',' && !inQuotes) {
+            row.push(current);
+            current = "";
+          } else {
+            current += c;
+          }
+        }
+        row.push(current);
+        rows.push(row);
+      }
+      return rows;
+    }
+    
+    // --- ヘルパー ---
+    function encodeSet(arr) {
+      if (arr.length === 0) return "";
+      let sorted = arr.slice().sort();
+      return sorted.join("|");
+    }
+    function decodeSet(str) {
+      if (str === "") return [];
+      return str.split("|");
+    }
+    
+    // --- DP計算 ---
+    function dpSequentialExtractionProbabilities(items, probabilities, numSelect) {
+      const n = items.length;
+      let dp = [];
+      for (let i = 0; i <= numSelect; i++) {
+        dp.push(new Map());
+      }
+      dp[0].set("", 1.0);
+      for (let k = 0; k < numSelect; k++) {
+        for (const [stateKey, probSoFar] of dp[k].entries()) {
+          let selectedItems = new Set(decodeSet(stateKey));
+          let remainingTotal = 0;
+          for (let i = 0; i < n; i++) {
+            if (!selectedItems.has(items[i])) {
+              remainingTotal += probabilities[i];
+            }
+          }
+          if (remainingTotal === 0) continue;
+          for (let i = 0; i < n; i++) {
+            if (selectedItems.has(items[i])) continue;
+            let newSet = new Set(selectedItems);
+            newSet.add(items[i]);
+            let newKey = encodeSet(Array.from(newSet));
+            let newProb = probSoFar * (probabilities[i] / remainingTotal);
+            let currentProb = dp[k + 1].get(newKey) || 0;
+            dp[k + 1].set(newKey, currentProb + newProb);
+          }
+        }
+      }
+      return dp[numSelect];
+    }
+    
+    // --- CSV読み込み ---
+    async function loadCSV(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+      const text = await response.text();
+      const lines = text.trim().split("\n");
+      const items = [];
+      const probabilities = [];
+      for (let line of lines) {
+        let parts = line.split(",");
+        if (parts.length < 2) continue;
+        let name = parts[0].trim().replace(/^"|"$/g, "");
+        let prob = parseFloat(parts[1].trim());
+        if (!isNaN(prob)) {
+          items.push(name);
+          probabilities.push(prob);
+        }
+      }
+      return { items, probabilities };
+    }
+    
+    // --- キャラクター好みCSV読み込み ---
+    async function loadPreferenceCSV(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+      const text = await response.text();
+      const rows = parseCSV(text);
+      if (rows.length < 2) throw new Error("Preference CSVのデータが不足しています");
+      const headers = rows[0].map(h => h.trim());
+      let preferences = {};
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (row.length < headers.length) continue;
+        let charName = row[0].trim();
+        preferences[charName] = {};
+        for (let j = 1; j < headers.length; j++) {
+          let itemName = headers[j];
+          let rating = parseFloat(row[j].trim());
+          preferences[charName][itemName] = isNaN(rating) ? 0 : rating;
+        }
+      }
+      return preferences;
+    }
+    
+    // --- CSVパスの決定 ---
+    function getCSVPath(nodeLevel) {
+      if (nodeLevel === "node1") return "../data/Node1.csv";
+      if (nodeLevel === "node2") return "../data/Node2.csv";
+      if (nodeLevel === "node3") return "../data/Node3.csv";
+      return "../data/Node1.csv";
+    }
+    
+    // --- アイテム分類リスト ---
+    const lowTierItems = [
+      "Wavecat Pillow","Peroro Wheel","A-Pods Pro","Forbidden Love: Its Beauty Lies in Its Illicitness",
+      "Hitgirls Gaming Magazine","Cherry-Rose Lip Gloss","Glassy Glow BB Cream","Military Camo Foundation Trio",
+      "Fine Cookie Set","Guns, Charm, and Zeal","Astronomical Telescope","Gamegirl Color Replica",
+      "MX-Ration C-Type Dessert Flavor","Matcha Ramune","Jellies Cushion",
+      "Extraordinary Cottontail Detective: Case of the Misty Hot Spring Slide","Ring Bit","Buried Treasure Map",
+      "Cosplayer Coke-Bottle Glasses","World's Most Useless Gadget","Teddy Bear with Bow","Movie Ticket",
+      "30-Color Paint Set","Classical Poetry Anthology","Cute Dishware Set","Brain Teaser Puzzle Cube",
+      "Large Whole Cake","Luxury Buffet Ticket","Potted Bug-Eating Plant","Extravagant Gilded Jar of Greed",
+      "Wind-Up Music Box","Embroidered Handkerchief","Encyclopedia","Health Food Supplement","Summer Floaty"
+    ];
+    const highTierItems = [
+      "Lace Pillow","Streets of Thugs Vol. 1",'Samuela "The Beyond"',"Antique Egg Handicraft",
+      "Mille-Feuille Traditional Parfait","Airbook Rare","Sophisticated Hairbrush",
+      "Nutrient-Packed Multivitamin Gummies","Finest Maple Bonsai","Sewing Kit",
+      "Music Concert Ticket","Three Times a Day Dumbbell Set",'Board Game "The Life"'
+    ];
+    
+    // --- Node2追加カテゴリーのアイテムマッピング ---
+    const node2ItemMapping = {
+      "Peony": ["Wavecat Pillow", "Jellies Cushion"],
+      "Morning Glory": ["Peroro Wheel", "Ring Bit"],
+      "Rose": ["A-Pods Pro", "Gamegirl Color Replica"],
+      "Tulip": ["Forbidden Love: Its Beauty Lies in Its Illicitness",
+                 "Hitgirls Gaming Magazine",
+                 "Guns, Charm, and Zeal",
+                 "Extraordinary Cottontail Detective: Case of the Misty Hot Spring Slide",
+                 "Encyclopedia",
+                 "Classical Poetry Anthology"],
+      "Cherry Blossom": ["Cherry-Rose Lip Gloss", "Glassy Glow BB Cream", "Military Camo Foundation Trio"],
+      "Daffodil": ["Fine Cookie Set", "MX-Ration C-Type Dessert Flavor", "Matcha Ramune", "Large Whole Cake"],
+      "Zinnia": ["Astronomical Telescope", "Cosplayer Coke-Bottle Glasses", "Teddy Bear with Bow", "30-Color Paint Set", "Brain Teaser Puzzle Cube"],
+      "Dandelion": ["Buried Treasure Map", "World's Most Useless Gadget", "Extravagant Gilded Jar of Greed", "Wind-Up Music Box"],
+      "Lily": ["Movie Ticket", "Luxury Buffet Ticket"],
+      "Marigold": ["Cute Dishware Set"],
+      "Bellflower": ["Potted Bug-Eating Plant"],
+      "Magnolia": ["Embroidered Handkerchief"],
+      "Azalea": ["Health Food Supplement"],
+      "Jade Blossom": ["Summer Floaty"]
+    };
+
+    // --- ヘルパー：指定アイテム群の平均評価 ---
+    function averageRating(itemsList, prefs) {
+      let sum = 0, count = 0;
+      for (let item of itemsList) {
+        if (prefs.hasOwnProperty(item)) {
+          sum += prefs[item];
+          count++;
+        }
+      }
+      return count > 0 ? sum / count : 0;
+    }
+
+    // --- 自動優先度付けのための期待値計算 ---
+    // 各ノード種別に応じたルールに基づき、各カテゴリーの期待値を算出
+    function computeExpectedValues(nodeLevel, avgLow, avgHigh, charPrefs) {
+      let evArray = [];
+      if (nodeLevel === "node1") {
+        evArray.push({ cat: "Flower", value: SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE1 * SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Radiant", value: 0 });
+      } else if (nodeLevel === "node2") {
+        evArray.push({ cat: "Flower", value: SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE2 * SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Radiant", value: 0 });
+        for (let key in node2ItemMapping) {
+          let avg = averageRating(node2ItemMapping[key], charPrefs);
+          evArray.push({ cat: key, value: SINGLE_COUNT * avg });
+        }
+      } else if (nodeLevel === "node3") {
+        evArray.push({ 
+          cat: "Flower", 
+          value: 0.75 * LOW_TIER_COUNT_NODE3 * avgLow + 0.25 * HIGH_TIER_COUNT_NODE3 * avgHigh 
+        });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE3 * LOW_TIER_COUNT_NODE3 * avgLow });
+        evArray.push({ cat: "Radiant", value: RADIANT_RATE_NODE3 * HIGH_TIER_COUNT_NODE3 * avgHigh });
+      }
+      return evArray;
+    }
+    
+    // --- 各アイテム群の均等報酬分布 ---
+    function uniformRewardDistribution(itemList, charPrefs) {
+      let dist = {};
+      let n = itemList.length;
+      for (let item of itemList) {
+        let reward = charPrefs[item] || 0;
+        if (dist[reward] === undefined) dist[reward] = 0;
+        dist[reward] += 1 / n;
+      }
+      return dist;
+    }
+    
+    // --- 分布の畳み込み ---
+    function convolveDist(dist1, dist2) {
+      let result = {};
+      for (let r1 in dist1) {
+        for (let r2 in dist2) {
+          let sum = parseInt(r1) + parseInt(r2);
+          result[sum] = (result[sum] || 0) + dist1[r1] * dist2[r2];
+        }
+      }
+      return result;
+    }
+    
+    // --- 分布のスケーリング ---
+    function scaleDistribution(dist, scale) {
+      let res = {};
+      for (let key in dist) {
+        let newKey = parseInt(key) * scale;
+        res[newKey] = (res[newKey] || 0) + dist[key];
+      }
+      return res;
+    }
+    
+    // --- 複数のスケール値の混合分布 ---
+    function mixtureScaleDist(dist, multipliers) {
+      let res = {};
+      for (let mult in multipliers) {
+        let p = multipliers[mult];
+        let scaled = scaleDistribution(dist, parseInt(mult));
+        for (let key in scaled) {
+          res[key] = (res[key] || 0) + p * scaled[key];
+        }
+      }
+      return res;
+    }
+    
+    // --- 各カテゴリーの報酬分布を返す ---
+    function getRewardDistribution(category, nodeLevel, charPrefs) {
+      if (nodeLevel === "node1") {
+        if (category === "Flower") return uniformRewardDistribution(lowTierItems, charPrefs);
+        else if (category === "Shiny") {
+          let dist = uniformRewardDistribution(lowTierItems, charPrefs);
+          let res = {0: 1 - SHINY_RATE_NODE1};
+          for (let r in dist) {
+            res[r] = (res[r] || 0) + SHINY_RATE_NODE1 * dist[r];
+          }
+          return res;
+        } else if (category === "Radiant") return {0: 1};
+        else return uniformRewardDistribution([category], charPrefs);
+      } else if (nodeLevel === "node2") {
+        if (category === "Flower") return uniformRewardDistribution(lowTierItems, charPrefs);
+        else if (category === "Shiny") {
+          let dist = uniformRewardDistribution(lowTierItems, charPrefs);
+          let res = {0: 1 - SHINY_RATE_NODE2};
+          for (let r in dist) {
+            res[r] = (res[r] || 0) + SHINY_RATE_NODE2 * dist[r];
+          }
+          return res;
+        } else if (category === "Radiant") return {0: 1};
+        else {
+          return uniformRewardDistribution(node2ItemMapping[category], charPrefs);
+        }
+      } else if (nodeLevel === "node3") {
+        if (category === "Flower") {
+          let lowDist = uniformRewardDistribution(lowTierItems, charPrefs);
+          let highDist = uniformRewardDistribution(highTierItems, charPrefs);
+          let scaledLow = mixtureScaleDist(lowDist, {2: 0.5, 3: 0.5});
+          let scaledHigh = mixtureScaleDist(highDist, {1: 0.5, 2: 0.5});
+          let result = {};
+          for (let r in scaledLow) { result[r] = (result[r] || 0) + 0.75 * scaledLow[r]; }
+          for (let r in scaledHigh) { result[r] = (result[r] || 0) + 0.25 * scaledHigh[r]; }
+          return result;
+        } else if (category === "Shiny") {
+          let lowDist = uniformRewardDistribution(lowTierItems, charPrefs);
+          let scaled = mixtureScaleDist(lowDist, {2: 0.5, 3: 0.5});
+          let res = {0: 1 - SHINY_RATE_NODE3};
+          for (let r in scaled) { res[r] = (res[r] || 0) + SHINY_RATE_NODE3 * scaled[r]; }
+          return res;
+        } else if (category === "Radiant") {
+          let highDist = uniformRewardDistribution(highTierItems, charPrefs);
+          let scaled = mixtureScaleDist(highDist, {1: 0.5, 2: 0.5});
+          let res = {0: 1 - RADIANT_RATE_NODE3};
+          for (let r in scaled) { res[r] = (res[r] || 0) + RADIANT_RATE_NODE3 * scaled[r]; }
+          return res;
+        } else {
+          return uniformRewardDistribution([category], charPrefs);
+        }
+      }
+    }
+    
+    // --- 最終報酬分布の合成 ---
+    function getFinalRewardDistribution(resultProb, nodeLevel, charPrefs) {
+      let finalDist = {};
+      let totalDP = 0;
+      for (let cat in resultProb) {
+        totalDP += resultProb[cat];
+        let rd = getRewardDistribution(cat, nodeLevel, charPrefs);
+        for (let r in rd) {
+          let reward = parseInt(r);
+          finalDist[reward] = (finalDist[reward] || 0) + resultProb[cat] * rd[r];
+        }
+      }
+      finalDist[0] = (finalDist[0] || 0) + (1 - totalDP);
+      return finalDist;
+    }
+    
+    // --- 全体報酬分布のヒストグラム表示（Chart.js利用） ---
+    // グローバル変数でChartインスタンスを管理
+    let histogramChart = null;
+    function displayOverallDistributionChart(overallDist) {
+      let labels = Object.keys(overallDist).map(Number).sort((a, b) => a - b);
+      let data = labels.map(label => overallDist[label] * 100);
+      
+      // しきい値以下の値を除外
+      const THRESHOLD_PERCENTAGE = 0.000001;
+      let filteredLabels = [];
+      let filteredData = [];
+      for (let i = 0; i < data.length; i++) {
+        if (data[i] >= THRESHOLD_PERCENTAGE) {  // しきい値以上のみ保持
+          filteredLabels.push(labels[i]);
+          filteredData.push(data[i]);
+        }
+      }
+      
+      let canvasHTML = `<canvas id="histogramChart"></canvas>`;
+      setTimeout(() => {
+        let canvasElem = document.getElementById("histogramChart");
+        if (!canvasElem) return;
+        let ctx = canvasElem.getContext("2d");
+        if (histogramChart) {
+          histogramChart.destroy();
+          histogramChart = null;
+        }
+        histogramChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: filteredLabels,
+            datasets: [{
+              label: "獲得ポイント (%)",
+              data: filteredData,
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              zoom: {
+                pan: { 
+                  enabled: true, 
+                  mode: "x"
+                },
+                zoom: {
+                  wheel: { enabled: false },  // マウスホイールでズーム
+                  drag: { enabled: true },   // ドラッグでズーム
+                  pinch: { enabled: true },  // タッチデバイスでピンチズーム
+                  mode: "x"
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) { return value.toFixed(5); }
+                }
+              }
+            }
+          }
+        });
+      }, 100);
+      return canvasHTML;
+    }
+    
+    // --- 結果表示テーブル ---
+    function displayResults(totalProb, evArray, priorityOrder, resultProb, weightedSum, finalDist, nodeLevelLabel) {
+      let html = `<h2 class="text-xl font-bold mb-2">${nodeLevelLabel} の結果</h2>`;
+      html += `
+        <div class="mb-4">
+          <p class="text-lg font-semibold">DP総獲得確率: ${totalProb.toFixed(5)}</p>
+          <p class="text-lg font-semibold">加重期待値合計: ${weightedSum.toFixed(5)} ポイント</p>
+        </div>
+        <div class="overflow-x-auto mb-4">
+          <table class="min-w-full border border-gray-600">
+            <thead class="bg-gray-700">
+              <tr>
+                <th class="px-4 py-2 border border-gray-600">順位</th>
+                <th class="px-4 py-2 border border-gray-600">カテゴリー</th>
+                <th class="px-4 py-2 border border-gray-600">期待値</th>
+                <th class="px-4 py-2 border border-gray-600">獲得確率</th>
+                <th class="px-4 py-2 border border-gray-600">加重値</th>
+              </tr>
+            </thead>
+            <tbody class="bg-gray-800">`;
+      for (let i = 0; i < priorityOrder.length; i++) {
+        let cat = priorityOrder[i];
+        let expected = evArray[i].value;
+        let prob = resultProb[cat] || 0;
+        let weighted = expected * prob;
+        html += `
+              <tr>
+                <td class="px-4 py-2 border border-gray-600 text-center">${i+1}</td>
+                <td class="px-4 py-2 border border-gray-600">${cat}</td>
+                <td class="px-4 py-2 border border-gray-600 text-right">${expected.toFixed(5)}</td>
+                <td class="px-4 py-2 border border-gray-600 text-right">${prob.toFixed(5)}</td>
+                <td class="px-4 py-2 border border-gray-600 text-right">${weighted.toFixed(5)}</td>
+              </tr>`;
+      }
+      html += `
+            </tbody>
+          </table>
+        </div>`;
+      return html;
+    }
+    
+    // --- computeExpectedValues ---
+    function computeExpectedValues(nodeLevel, avgLow, avgHigh, charPrefs) {
+      let evArray = [];
+      if (nodeLevel === "node1") {
+        evArray.push({ cat: "Flower", value: SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE1 * SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Radiant", value: 0 });
+      } else if (nodeLevel === "node2") {
+        evArray.push({ cat: "Flower", value: SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE2 * SINGLE_COUNT * avgLow });
+        evArray.push({ cat: "Radiant", value: 0 });
+        for (let key in node2ItemMapping) {
+          let avg = averageRating(node2ItemMapping[key], charPrefs);
+          evArray.push({ cat: key, value: SINGLE_COUNT * avg });
+        }
+      } else if (nodeLevel === "node3") {
+        evArray.push({ cat: "Flower", value: 0.75 * LOW_TIER_COUNT_NODE3 * avgLow + 0.25 * HIGH_TIER_COUNT_NODE3 * avgHigh });
+        evArray.push({ cat: "Shiny", value: SHINY_RATE_NODE3 * LOW_TIER_COUNT_NODE3 * avgLow });
+        evArray.push({ cat: "Radiant", value: RADIANT_RATE_NODE3 * HIGH_TIER_COUNT_NODE3 * avgHigh });
+      }
+      return evArray;
+    }
+    
+    // --- 個別計算 ---
+    async function calculateForNode(nodeLevel, numSelect, charPrefs) {
+      const cacheKey = `${nodeLevel}_${numSelect}`;
+      let dpResult;
+      if (dpCache[cacheKey]) {
+        dpResult = dpCache[cacheKey];
+      } else {
+        let data = await loadCSV(getCSVPath(nodeLevel));
+        const items = data.items;
+        const probabilities = data.probabilities;
+        dpResult = dpSequentialExtractionProbabilities(items, probabilities, numSelect);
+        dpCache[cacheKey] = dpResult;
+      }
+      
+      const avgLow = averageRating(lowTierItems, charPrefs);
+      const avgHigh = averageRating(highTierItems, charPrefs);
+      let ev = computeExpectedValues(nodeLevel, avgLow, avgHigh, charPrefs);
+      ev.sort((a, b) => b.value - a.value);
+      const priorityOrder = ev.map(x => x.cat);
+      
+      let totalProbability = 0;
+      let resultProb = {};
+      for (let cat of priorityOrder) resultProb[cat] = 0;
+      for (const [stateKey, prob] of dpResult.entries()) {
+        totalProbability += prob;
+        const selectedCats = decodeSet(stateKey);
+        for (let cat of priorityOrder) {
+          if (selectedCats.includes(cat)) {
+            resultProb[cat] += prob;
+            break;
+          }
+        }
+      }
+      
+      let weightedSum = 0;
+      for (let i = 0; i < priorityOrder.length; i++) {
+        weightedSum += resultProb[priorityOrder[i]] * ev[i].value;
+      }
+      
+      const finalDist = getFinalRewardDistribution(resultProb, nodeLevel, charPrefs);
+      
+      let label = "";
+      if (nodeLevel === "node1") label = "1次ノード";
+      else if (nodeLevel === "node2") label = "2次ノード";
+      else if (nodeLevel === "node3") label = "3次ノード";
+      
+      return { html: displayResults(totalProbability, ev, priorityOrder, resultProb, weightedSum, finalDist, label), finalDist: finalDist };
+    }
+    
+    // --- UI更新 ---
+    function updateModeUI() {
+      const mode = document.getElementById("calc_mode").value;
+      const nodeLevelContainer = document.getElementById("node-level-container");
+      nodeLevelContainer.style.display = mode === "individual" ? "block" : "none";
+    }
+    document.getElementById("calc_mode").addEventListener("change", updateModeUI);
+    updateModeUI();
+    
+    // --- 計算実行 ---
+    document.getElementById("run-btn").addEventListener("click", async function() {
+      const numSelect = parseInt(document.getElementById("num_select").value);
+      const mode = document.getElementById("calc_mode").value;
+      const keystoneCount = parseInt(document.getElementById("keystone_count").value);
+      
+      let prefData;
+      try {
+        prefData = await loadPreferenceCSV("../data/CharacterPreferences.csv");
+        console.log("Character Preferences Data:", prefData);
+      } catch (error) {
+        document.getElementById("output").innerHTML = `<p class="mb-2 text-red-400">キャラクター好みCSV読み込み失敗: ${error}</p>`;
+        return;
+      }
+      
+      const selectedCharacter = document.getElementById("character_select").value;
+      const charPrefs = prefData[selectedCharacter] || {};
+      
+      let resultHTML = "";
+      if (mode === "all") {
+        const res1 = await calculateForNode("node1", numSelect, charPrefs);
+        const res2 = await calculateForNode("node2", numSelect, charPrefs);
+        const res3 = await calculateForNode("node3", numSelect, charPrefs);
+        // 個別結果表示（1次・2次・3次の結果を順に表示）
+        let nodeResultsHtml = `<div id="node-results">${res1.html}${res2.html}${res3.html}</div>`;
+        // 全ノードの最終報酬分布の畳み込み
+        const overallDist = convolveDist(res1.finalDist, convolveDist(res2.finalDist, res3.finalDist));
+        // キーストーン数回の畳み込み
+        const ksDist = powerDist(overallDist, keystoneCount);
+        // 全ノードのヒストグラムは3次ノード結果の下に表示する
+        let overallHtml = `<div id="overall-histogram" class="mt-4"><h2 class="text-xl font-bold mb-2">全ノード 畳み込み後の報酬分布</h2>` + displayOverallDistributionChart(ksDist) + `</div>`;
+        resultHTML = nodeResultsHtml + overallHtml;
+      } else {
+        const nodeLevel = document.getElementById("node_level").value;
+        const res = await calculateForNode(nodeLevel, numSelect, charPrefs);
+        let nodeResultsHtml = `<div id="node-results">${res.html}</div>`;
+        const ksDist = powerDist(res.finalDist, keystoneCount);
+        let overallHtml = `<div id="overall-histogram" class="mt-4"><h2 class="text-xl font-bold mb-2">キーストーン畳み込み後の報酬分布</h2>` + displayOverallDistributionChart(ksDist) + `</div>`;
+        resultHTML = nodeResultsHtml + overallHtml;
+      }
+      
+      document.getElementById("output").innerHTML = resultHTML;
+    });
+    
+    // --- ズームリセットボタン ---
+    document.getElementById("resetZoomBtn").addEventListener("click", function() {
+      if (histogramChart) {
+        histogramChart.resetZoom();
+      }
+    });
+  </script>
+</body>
+</html>
